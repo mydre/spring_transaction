@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driver}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+    <bean id="accountDao" class="com.imooc.spr_trans.dao.AccountDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <bean id="accountService" class="com.imooc.spr_trans.service.AccountServiceImpl">
+        <property name="accountDao" ref="accountDao"/>
+        <property name="transactionTemplate" ref="transactionTemplate"/>
+    </bean>
+    <!--配置 编程式的事务管理 事务管理器，业务层的类需要进行事务管理，即在业务层注入事务管理的模版-->
+    <bean id="dsTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!--配置spring为方便事务的管理而提供的事务管理器的模版-->
+    <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="transactionManager" ref="dsTransactionManager"/>
+    </bean>
+</beans>
